@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { jsPDF } from "jspdf";
+import { jsPDF, GState } from "jspdf";
 import axios from 'axios';
 import { 
   Download, 
@@ -143,19 +143,19 @@ const CertificationGenerator = ({ documentDetails }: { documentDetails: Document
       const logoSize = 100;
       
       // Layer 1: Very faint, slightly offset for blur effect
-      doc.setGState(new doc.GState({ opacity: 0.02 }));
+      doc.setGState(new GState({ opacity: 0.02 }));
       doc.addImage(Logo, 'JPEG', logoX - 2, logoY - 2, logoSize + 4, logoSize + 4);
       
       // Layer 2: Faint, slight offset
-      doc.setGState(new doc.GState({ opacity: 0.03 }));
+      doc.setGState(new GState({ opacity: 0.03 }));
       doc.addImage(Logo, 'JPEG', logoX - 1, logoY - 1, logoSize + 2, logoSize + 2);
       
       // Layer 3: Main logo layer with very low opacity
-      doc.setGState(new doc.GState({ opacity: 0.05 }));
+      doc.setGState(new GState({ opacity: 0.05 }));
       doc.addImage(Logo, 'JPEG', logoX, logoY, logoSize, logoSize);
       
       // Reset opacity for other elements
-      doc.setGState(new doc.GState({ opacity: 1 }));
+      doc.setGState(new GState({ opacity: 1 }));
       
       // Add seal at the upper right
       doc.addImage(Seal, 'JPEG', 150, 20, 40, 40);

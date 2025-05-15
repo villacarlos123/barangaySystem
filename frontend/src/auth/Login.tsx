@@ -17,7 +17,7 @@ const Login = () => {
 }, [])
 
 
-  const handleLogin = (e) => {
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!email || !password) {

@@ -7,7 +7,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
 import { 
-  Calendar, Clock, FileText, Users, UserCheck
+  Calendar, FileText, Users, UserCheck
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 // Types
@@ -263,7 +263,7 @@ export default function Dashboard() {
                       dataKey="value"
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      {genderData.map((entry, index) => (
+                      {genderData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -307,7 +307,7 @@ export default function Dashboard() {
                       dataKey="value"
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      {documentStatusData.map((entry, index) => (
+                      {documentStatusData.map((__, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>

@@ -1,19 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { Trash2, Users, AlertCircle, CheckCircle } from 'lucide-react';
+import { Users, AlertCircle, CheckCircle } from 'lucide-react';
 import { getAuth } from "../utils/getAuth.js";
 import { getData } from "../utils/getData.js";
 import Sidebar from '../components/Sidebar';
 import { putData } from '../utils/postData.js';
 import '../css/resident.css'
 
-const ResidentsDashboard = () => {
-  const { data: residentsData, error: residentsError, loading: residentsLoading } = getData("residents");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+interface Resident {
+  resident_id: string;
+  first_name: string;
+  middle_name?: string;
+  last_name: string;
+  email: string;
+  contact_number: string;
+  status: string;
+}
+
+interface GetDataResponse<T> {
+  data: T | null;
+  error: boolean;
+  loading: boolean;
+}
+
+const ResidentsDashboard: React.FC = () => {
+  const { data: residentsData, loading: residentsLoading } = getData("residents") as GetDataResponse<Record<string, Resident>>;
 
   const residents = residentsData
-    ? Object.keys(residentsData).map((key) => ({
-        resident_id: key, 
-        ...residentsData[key], 
+    ? Object.entries(residentsData).map(([key, value]) => ({
+        ...value,
+        resident_id: key
       }))
     : [];
 
@@ -22,19 +37,27 @@ const ResidentsDashboard = () => {
   
   const pendingCount = pendingResidents.length;
 
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   useEffect(() => {
     if (!getAuth()) {
       window.location.href = "/";
     }
   }, []);
 
-  const handleAcceptResident = async (residentId) => {
+  const handleAcceptResident = async (residentId: string): Promise<void> => {
     const res = await putData('residents', residentId, { status: 'Accepted' });
     console.log(res);
 
     if (res) {
       alert('Resident accepted successfully');
       window.location.reload();
+    }
+  };
+
+  const handleModalClick = (e: React.MouseEvent<HTMLDivElement>): void => {
+    if (e.target instanceof HTMLDivElement && e.target.className === 'modal-overlay') {
+      setIsModalOpen(false);
     }
   };
 
@@ -76,7 +99,7 @@ const ResidentsDashboard = () => {
               <tbody>
                 {residentsLoading ? (
                   <tr>
-                    <td colSpan="4">
+                    <td colSpan={4}>
                       <div className="loading-state">
                         <div className="loading-spinner"></div>
                       </div>
@@ -97,7 +120,7 @@ const ResidentsDashboard = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4">
+                    <td colSpan={4}>
                       <div className="empty-state">
                         <Users className="empty-state-icon" />
                         <p>No accepted residents found</p>
@@ -112,11 +135,7 @@ const ResidentsDashboard = () => {
 
         {/* Pending Residents Modal */}
         {isModalOpen && (
-          <div className="modal-overlay" onClick={(e) => {
-            if (e.target.className === 'modal-overlay') {
-              setIsModalOpen(false);
-            }
-          }}>
+          <div className="modal-overlay" onClick={handleModalClick}>
             <div className="modal-container">
               <div className="modal-header">
                 <h2>
@@ -152,7 +171,7 @@ const ResidentsDashboard = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4">
+                        <td colSpan={4}>
                           <div className="empty-state">
                             <CheckCircle className="empty-state-icon text-green-500" />
                             <p>No pending account requests</p>

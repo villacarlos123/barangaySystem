@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
-import { Trash2, Edit, Mail, CheckCircle, XCircle, Clock, Search, Download, Eye, Filter, FileImage, Calendar, User, Phone, AtSign, FileText, CreditCard } from "lucide-react";
+import { Trash2, Mail, CheckCircle, XCircle, Clock, Search, Download, Eye, Filter, FileImage, Calendar, User, Phone, AtSign, FileText, CreditCard } from "lucide-react";
 import axios from 'axios';
 import CertificationGenerator from "../components/Cert";
 
@@ -173,9 +173,9 @@ const Document = () => {
   // Function to handle document view
   const handleViewDocument = (document: Document) => {
     setSelectedDocument(document);
-    const sample = document?.receiptImage;
-    if (typeof sample?.file === 'string' && sample?.file.includes('id=')) {
-      const match = sample?.file.match(/id=([^&]+)/);
+    const receiptImage = document?.receiptImage;
+    if (typeof receiptImage === 'string' && receiptImage.includes('id=')) {
+      const match = receiptImage.match(/id=([^&]+)/);
       if (match) {
         setImageId(match[1]);
       }

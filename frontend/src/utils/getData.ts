@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-export function getData(link) {
+export function getData(link: string) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,7 @@ export function getData(link) {
         const res = await axios.get(`https://barangayapi.vercel.app/${link}`);
         setData(res.data);
       } catch (err) {
-        setError(err);
+        setError(err as boolean);
       } finally {
         setLoading(false);
       }

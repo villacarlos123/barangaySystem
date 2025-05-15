@@ -1,27 +1,61 @@
 import React, { useEffect, useState } from 'react';
-import { Settings, Trash2, Plus, AlertCircle, Users, Calendar, Briefcase } from 'lucide-react';
+import { Trash2, Plus, AlertCircle, Users, Briefcase } from 'lucide-react';
 import { getAuth } from "../utils/getAuth.js";
 import { getData } from "../utils/getData.js";
 import Sidebar from '../components/Sidebar';
 import { postData, putData, deleteData } from '../utils/postData.js';
 import '../css/official.css'
 
-const OfficialDashboard = () => {
-  const { data: officials, error: officialsError, loading: officialsLoading } = getData("officials");
+interface Resident {
+  resident_id: string;
+  first_name: string;
+  middle_name?: string;
+  last_name: string;
+  status: string;
+}
+
+interface Official {
+  official_id: string;
+  resident_id: string;
+  first_name: string;
+  middle_name?: string;
+  last_name: string;
+  position: string;
+  start_term: string;
+  end_term: string;
+  status: string;
+}
+
+interface FormData {
+  position: string;
+  start_term: string;
+  end_term: string;
+  status: string;
+  resident_id: string;
+}
+
+interface GetDataResponse<T> {
+  data: T | null;
+  error: boolean;
+  loading: boolean;
+}
+
+const OfficialDashboard: React.FC = () => {
+  const { data: officials, loading: officialsLoading } = getData("officials") as GetDataResponse<Official[]>;
   
-  const { data: residentsData } = getData("residents") || {};
+  const { data: residentsData } = getData("residents") as GetDataResponse<Record<string, Resident>> || {};
   
   const residents = residentsData
-    ? Object.keys(residentsData).map((key) => ({
-        resident_id: key, 
-        ...residentsData[key], 
+    ? Object.entries(residentsData).map(([key, value]) => ({
+        ...value,
+        resident_id: key
       }))
     : [];
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [selectedOfficial, setSelectedOfficial] = useState(null);
-  const [formData, setFormData] = useState({
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
+  const [selectedOfficial, setSelectedOfficial] = useState<Official | null>(null);
+  const [formData, setFormData] = useState<FormData>({
     position: "",
     start_term: "",
     end_term: "",
@@ -35,12 +69,12 @@ const OfficialDashboard = () => {
     }
   }, []);
 
-  const openDeleteConfirmation = (official) => {
+  const openDeleteConfirmation = (official: Official): void => {
     setSelectedOfficial(official);
     setShowConfirmDialog(true);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (): Promise<void> => {
     if (selectedOfficial) {
       await putData('residents', selectedOfficial.resident_id, { status: 'Accepted' });
       
@@ -54,7 +88,7 @@ const OfficialDashboard = () => {
     }
   };
 
-  const handleAdd = async () => {
+  const handleAdd = async (): Promise<void> => {
     if (!formData.position || !formData.start_term || !formData.end_term || !formData.resident_id) {
       alert("Please fill in all fields");
       return;
@@ -69,9 +103,15 @@ const OfficialDashboard = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  const formatDate = (dateString: string): string => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  const handleModalClick = (e: React.MouseEvent<HTMLDivElement>): void => {
+    if (e.target instanceof HTMLDivElement && e.target.className === 'modal-overlay') {
+      setIsModalOpen(false);
+    }
   };
 
   return (
@@ -111,13 +151,13 @@ const OfficialDashboard = () => {
               <tbody>
                 {officialsLoading ? (
                   <tr>
-                    <td colSpan="6">
+                    <td colSpan={6}>
                       <div className="loading-state">
                         <div className="loading-spinner"></div>
                       </div>
                     </td>
                   </tr>
-                ) : officials?.length > 0 ? (
+                ) : officials?.length ? (
                   officials.map((official) => (
                     <tr key={official.official_id}>
                       <td>
@@ -152,7 +192,7 @@ const OfficialDashboard = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6">
+                    <td colSpan={6}>
                       <div className="empty-state">
                         <Users className="empty-state-icon" />
                         <p>No officials found.</p>
@@ -167,11 +207,7 @@ const OfficialDashboard = () => {
 
         {/* Add Official Modal */}
         {isModalOpen && (
-          <div className="modal-overlay" onClick={(e) => {
-            if (e.target.className === 'modal-overlay') {
-              setIsModalOpen(false);
-            }
-          }}>
+          <div className="modal-overlay" onClick={handleModalClick}>
             <div className="modal-container">
               <div className="modal-header">
                 <h2>

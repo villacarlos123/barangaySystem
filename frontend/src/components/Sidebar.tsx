@@ -33,7 +33,7 @@ const Sidebar = () => {
     );
 };
 
-const NavItem = ({ icon, label }) => {
+const NavItem = ({ icon, label }: { icon: React.ReactNode, label: string }) => {
     return (
         <motion.div 
             whileHover={{ scale: 1.05 }} 
